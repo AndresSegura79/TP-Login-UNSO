@@ -15,3 +15,7 @@ Una vez instalado XAMPP dentro de la ruta donde se haya instalado se debe accede
 
 2. Si no cuenta con **git** puede acceder a https://github.com/AndresSegura79/TP-Login-UNSO.git,  descargar el ***zip*** y descomprimir
 
+Ejecutar XAMPP y prender (dandole click a start) Apache y MySQL
+
+Acceder desde un navegador a http://localhost/TP-Login-UNSO/initialize.php
+
