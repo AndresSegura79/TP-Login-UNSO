@@ -52,6 +52,7 @@ $sql = "CREATE TABLE usuarios (
     mail VARCHAR(50) NOT NULL UNIQUE,
     fecha_de_nacimiento DATE, 
     contraseña VARCHAR(255) NOT NULL,
+    rol_id INT(6) UNSIGNED NOT NULL, -- Se agrega esta columna para la relación con 'roles'
     FOREIGN KEY (rol_id) REFERENCES roles(id),
     estado TINYINT(1) NOT NULL DEFAULT 1
 )";
@@ -64,8 +65,9 @@ if ($conn->query($sql) === TRUE) {
 // Crear tabla 'logs' 
 $sql = "CREATE TABLE logs (
     id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    FOREIGN KEY usuario_id REFERENCES usuarios(id),
+    usuario_id INT(6) UNSIGNED NOT NULL,  -- Se debe definir la columna usuario_id antes de la FK
     fecha_de_acceso TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (usuario_id) REFERENCES usuarios(id)
 )";
 if ($conn->query($sql) === TRUE) {
     echo "Tabla 'logs' verificada o creada exitosamente.<br>";
