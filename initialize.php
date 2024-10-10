@@ -23,7 +23,7 @@ if ($conn->query($sql) === TRUE) {
 
 // Crear base de datos 
 $sql = "CREATE DATABASE $db_name";
-if ($conn->query($sql) === TRUE) {echo "Base de datos '$db_name' verificada o creada exitosamente.<br>";
+if ($conn->query($sql) === TRUE) {echo "Base de datos '$db_name' creada exitosamente.<br>";
 } else {
     die("Error creando la base de datos: " . $conn->error);
 }
@@ -38,7 +38,7 @@ $sql = "CREATE TABLE roles (
     nombre VARCHAR(30) NOT NULL
     )";
 if ($conn->query($sql) === TRUE) {
-    echo "Tabla 'roles' verificada o creada exitosamente.<br>";
+    echo "Tabla 'roles' creada exitosamente.<br>";
 } else {
     die("Error creando tabla 'roles': " . $conn->error);
 }
@@ -57,7 +57,7 @@ $sql = "CREATE TABLE usuarios (
     estado TINYINT(1) NOT NULL DEFAULT 1
 )";
 if ($conn->query($sql) === TRUE) {
-    echo "Tabla 'usuarios' verificada o creada exitosamente.<br>";
+    echo "Tabla 'usuarios' creada exitosamente.<br>";
 } else {
     die("Error creando tabla 'usuarios': " . $conn->error);
 }
@@ -70,7 +70,7 @@ $sql = "CREATE TABLE logs (
     FOREIGN KEY (usuario_id) REFERENCES usuarios(id)
 )";
 if ($conn->query($sql) === TRUE) {
-    echo "Tabla 'logs' verificada o creada exitosamente.<br>";
+    echo "Tabla 'logs' creada exitosamente.<br>";
 } else {
     die("Error creando tabla 'logs': " . $conn->error);
 }
