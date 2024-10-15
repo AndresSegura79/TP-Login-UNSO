@@ -1,3 +1,44 @@
+<?php
+session_start();
+/* 
+Credenciales Admin 
+Usuario:  unso
+password: unso
+*/
+if (isset($_SESSION['user_id'])) {
+   if ($_SESSION['rol'] === 'admin') {
+    header('Location: admin.php');
+   } else {
+    header('Location: inicio.php');
+   }
+  exit(); 
+}
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $username = $_POST['username'] ?? '';
+    $password = $_POST['password'] ?? '';
+
+    if (isset($users[$username]) && $users[$username]['password'] === $password) {
+        // Si las credenciales son correctas, almacenar la información en la sesión
+        $_SESSION['user_id'] = 1; // ID de ejemplo
+        $_SESSION['username'] = $username;
+        $_SESSION['role'] = $users[$username]['role']; // Guardar el rol en la sesión
+
+        // Redirigir según el rol del usuario
+        if ($_SESSION['role'] === 'admin') {
+            header('Location: admin.php'); // Redirigir si esadmin
+        } else {
+            header('Location: inicio.php'); // Redirigir si es user
+        }
+        exit();
+    } else {
+        // Si las credenciales son incorrectas, mostrar un error
+        $error = "Usuario o contraseña incorrectos.";
+    }
+}
+
+
+?>
+
 <!DOCTYPE html>
 <html lang="es">
 <head>

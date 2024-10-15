@@ -21,4 +21,6 @@ Acceder desde un navegador a http://localhost/TP-Login-UNSO/initialize_pdo.php
 > [!WARNING]
 > Este script elimina la BD *tp_login_unso* de existir previamente
 
-
+Se tiene de manera predeterminada un usuario Admin el cual es:
+Usuario:  unso
+Password: unso
