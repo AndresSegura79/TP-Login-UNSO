@@ -106,10 +106,7 @@
           <button class="w-100 btn btn-primary btn-lg" type="submit">Registrarse</button>
         </form>
 
-        <!-- Botón Login -->
-        <div class="text-center mt-3">
-          <a href="login.html" class="btn btn-secondary">Login</a>
-        </div>
+       
       </div>
     </div>
   </main>

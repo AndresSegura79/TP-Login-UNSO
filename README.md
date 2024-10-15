@@ -17,5 +17,8 @@ Una vez instalado XAMPP dentro de la ruta donde se haya instalado se debe accede
 
 Ejecutar XAMPP y prender (dandole click a start) Apache y MySQL
 
-Acceder desde un navegador a http://localhost/TP-Login-UNSO/initialize.php **warning:** Este script elimina la BD *tp_login_unso* de existir previamente
+Acceder desde un navegador a http://localhost/TP-Login-UNSO/initialize_pdo.php 
+> [!WARNING]
+> Este script elimina la BD *tp_login_unso* de existir previamente
+
 

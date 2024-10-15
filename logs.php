@@ -39,7 +39,7 @@
 
     <!-- Botón para redirigir a Admin -->
     <div class="text-center mb-4">
-      <a href="admin.html" class="btn btn-primary">Ir a Admin</a>
+      <a href="admin.php" class="btn btn-primary">Ir a Admin</a>
     </div>
 
     <!-- Logs grid -->
