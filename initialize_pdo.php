@@ -26,14 +26,6 @@ try {
     // Conectarse a la nueva base de datos
     $conn->exec("USE $db_name");
 
-    // Crear tabla 'roles' 
-    $sql = "CREATE TABLE roles (
-        id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-        nombre VARCHAR(30) NOT NULL
-    )";
-    $conn->exec($sql);
-    echo "Tabla 'roles' creada exitosamente.<br>";
-
     // Crear tabla 'usuarios' 
     $sql = "CREATE TABLE usuarios (
         id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
@@ -43,8 +35,7 @@ try {
         mail VARCHAR(50) NOT NULL UNIQUE,
         fecha_de_nacimiento DATE, 
         contraseña VARCHAR(255) NOT NULL,
-        rol_id INT(6) UNSIGNED NOT NULL, -- Se agrega esta columna para la relación con 'roles'
-        FOREIGN KEY (rol_id) REFERENCES roles(id),
+        rol VARCHAR(30) NOT NULL,
         estado TINYINT(1) NOT NULL DEFAULT 1
     )";
     $conn->exec($sql);

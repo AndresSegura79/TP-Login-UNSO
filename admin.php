@@ -1,6 +1,5 @@
 <?php
 session_start();
-
 ?>
 
 <!DOCTYPE html>
@@ -49,13 +48,13 @@ session_start();
       <ul class="nav nav-pills flex-column mb-auto">
         <!-- Logs -->
         <li class="nav-item">
-          <a href="logs.html" class="nav-link" aria-current="page">
+          <a href="logs.php" class="nav-link" aria-current="page">
             <i class="bi bi-file-earmark-text"></i> Logs
           </a>
         </li>
         <!-- Log out -->
         <li class="nav-item">
-          <a href="login.html" class="nav-link">
+          <a href="logout.php" class="nav-link"> <!-- Modificación aquí -->
             <i class="bi bi-box-arrow-in-right"></i> Cerrar Sesión
           </a>
         </li>
@@ -127,8 +126,6 @@ session_start();
       </div>
     </div>
   </div>
-
-  <!-- Bootstrap JS -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
+

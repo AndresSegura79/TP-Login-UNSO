@@ -1,42 +1,97 @@
 <?php
 session_start();
 /* 
-Credenciales Admin 
-Usuario:  unso
-password: unso
+Usuario Admin
+Usuario:   unso
+Password:  unso
 */
+
+// Variables de conexión a la base de datos
+$host = 'localhost';
+$dbname = 'tp_login_unso';  // Nombre de la base de datos 
+$username_db = 'root';  // Usuario de la base de datos
+$password_db = '';  // Contraseña de la base de datos (vacía en XAMPP)
+
+// Verificar si ya está logueado
 if (isset($_SESSION['user_id'])) {
-   if ($_SESSION['rol'] === 'admin') {
-    header('Location: admin.php');
-   } else {
-    header('Location: inicio.php');
-   }
-  exit(); 
+    if ($_SESSION['rol'] === 'admin') {
+        header('Location: admin.php');
+    } else {
+        header('Location: inicio.php');
+    }
+    exit();
 }
+
+// Inicializar variable de error
+$error = "";
+
+// Verificar si el formulario fue enviado
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = $_POST['username'] ?? '';
     $password = $_POST['password'] ?? '';
 
-    if (isset($users[$username]) && $users[$username]['password'] === $password) {
+    // Usuario admin hardcodeado
+    $hardcodedAdmin = [
+        'username' => 'unso',
+        'password' => 'unso',  // Contraseña en texto plano para el ejemplo, toca ver como securizarlo
+        'rol' => 'admin'
+    ];
+
+    // Verificar si es el usuario admin hardcodeado
+    if ($username === $hardcodedAdmin['username'] && $password === $hardcodedAdmin['password']) {
         // Si las credenciales son correctas, almacenar la información en la sesión
-        $_SESSION['user_id'] = 1; // ID de ejemplo
-        $_SESSION['username'] = $username;
-        $_SESSION['role'] = $users[$username]['role']; // Guardar el rol en la sesión
+        $_SESSION['user_id'] = 9999; // ID ficticio para usuario hardcodeado
+        $_SESSION['username'] = $hardcodedAdmin['username'];
+        $_SESSION['rol'] = $hardcodedAdmin['rol'];
 
         // Redirigir según el rol del usuario
-        if ($_SESSION['role'] === 'admin') {
-            header('Location: admin.php'); // Redirigir si esadmin
+        if ($_SESSION['rol'] === 'admin') {
+            header('Location: admin.php');
         } else {
-            header('Location: inicio.php'); // Redirigir si es user
+            header('Location: inicio.php');
         }
         exit();
-    } else {
-        // Si las credenciales son incorrectas, mostrar un error
-        $error = "Usuario o contraseña incorrectos.";
+    }
+
+    // Si no es el usuario hardcodeado, conectar a la base de datos usando PDO
+    try {
+        $pdo = new PDO("mysql:host=$host;dbname=$dbname", $username_db, $password_db);
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+        // Consulta para obtener el usuario de la base de datos
+        $sql = "SELECT id, usuario, contraseña, rol FROM usuarios 
+                WHERE usuario = :username AND estado = 1";  // Solo usuarios activos
+
+        // Preparar y ejecutar la consulta
+        $stmt = $pdo->prepare($sql);
+        $stmt->bindParam(':username', $username);
+        $stmt->execute();
+
+        // Obtener el resultado
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        // Verificar si el usuario existe y la contraseña es correcta
+        if ($user && password_verify($password, $user['contraseña'])) {
+            // Si las credenciales son correctas, almacenar la información en la sesión
+            $_SESSION['user_id'] = $user['id'];
+            $_SESSION['username'] = $user['usuario'];
+            $_SESSION['rol'] = $user['rol'];
+
+            // Redirigir según el rol del usuario
+            if ($_SESSION['rol'] === 'admin') {
+                header('Location: admin.php');
+            } else {
+                header('Location: inicio.php');
+            }
+            exit();
+        } else {
+            $error = "Usuario o contraseña incorrectos.";
+        }
+    } catch (PDOException $e) {
+        // Manejar errores de conexión
+        $error = "Error de conexión: " . $e->getMessage();
     }
 }
-
-
 ?>
 
 <!DOCTYPE html>
@@ -108,7 +163,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             text-decoration: underline;
         }
 
-        /* Añadiendo un diseño responsivo */
         @media (max-width: 400px) {
             .login-container {
                 width: 90%;
@@ -120,6 +174,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <div class="login-container">
         <h2>Iniciar Sesión</h2>
+        <?php if ($error): ?>
+            <p style="color: red;"><?php echo $error; ?></p>
+        <?php endif; ?>
         <form action="login.php" method="post">
             <input type="text" name="username" placeholder="Usuario" required>
             <input type="password" name="password" placeholder="Contraseña" required>
@@ -130,4 +187,3 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 </body>
 </html>
-
