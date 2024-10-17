@@ -1,5 +1,17 @@
 <?php
 session_start();
+
+// Verificar si ya está logueado
+if (isset($_SESSION['user_id'])) {
+  if ($_SESSION['rol'] !== 'admin') {
+      header('Location: inicio.php');
+      exit();
+  }
+} else {
+  header('Location: login.php');
+  exit();
+} 
+
 ?>
 
 <!DOCTYPE html>
@@ -7,43 +19,18 @@ session_start();
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin Sidebar</title>
+  <title>Admin Panel</title>
   <!-- Bootstrap 5 CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
   <!-- Bootstrap Icons -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
-  <style>
-    body {
-      display: flex;
-      min-height: 100vh;
-    }
-
-    #sidebar {
-      min-width: 250px;
-      max-width: 250px;
-      background-color: #343a40;
-      color: #ffffff;
-    }
-
-    #sidebar .nav-link {
-      color: #ffffff;
-    }
-
-    #sidebar .nav-link:hover {
-      background-color: #495057;
-    }
-
-    #main-content {
-      flex-grow: 1;
-      padding: 20px;
-    }
-  </style>
+  <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
   <!-- Sidebar -->
   <nav id="sidebar" class="bg-dark">
     <div class="d-flex flex-column p-3">
-      <h4 class="text-light">Admin Panel</h4>
+      <h4 class="text-light">Menu</h4>
       <hr>
       <ul class="nav nav-pills flex-column mb-auto">
         <!-- Logs -->

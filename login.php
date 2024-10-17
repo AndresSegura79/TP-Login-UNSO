@@ -3,11 +3,29 @@
 include 'db_connection.php';
 session_start();
 /* 
-Usuario Admin
+Usuario Admin 
 Usuario:   unso
 Password:  unso
 */
-
+function registrarAcceso($usuario_id, $conexion) {
+    // Validar el ID de usuario
+  
+    // Preparar la consulta SQL
+    $sql = "INSERT INTO logs (usuario_id) VALUES (:usuario_id)";
+    
+    // Preparar la sentencia
+    $stmt = $conexion->prepare($sql);
+    
+    // Asignar el valor al parámetro
+    $stmt->bindParam(':usuario_id', $usuario_id, PDO::PARAM_INT);
+    
+    // Ejecutar la consulta
+    if ($stmt->execute()) {
+        return true; // Registro exitoso
+    } else {
+        return false; // Error en el registro
+    }
+}
 // Verificar si ya está logueado
 if (isset($_SESSION['user_id'])) {
     if ($_SESSION['rol'] === 'admin') {
@@ -29,7 +47,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Usuario admin hardcodeado
     $hardcodedAdmin = [
         'username' => 'unso',
-        'password' => 'unso',  // Contraseña en texto plano para el ejemplo, toca ver como securizarlo
+        'password' => 'unso',  // Contraseña en texto plano para el ejemplo
         'rol' => 'admin'
     ];
 
@@ -69,6 +87,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['user_id'] = $user['id'];
             $_SESSION['username'] = $user['usuario'];
             $_SESSION['rol'] = $user['rol'];
+
+            registrarAcceso( $_SESSION['user_id'], $pdo); 
 
             // Redirigir según el rol del usuario
             if ($_SESSION['rol'] === 'admin') {
