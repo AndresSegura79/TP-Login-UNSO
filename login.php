@@ -1,16 +1,12 @@
 <?php
+
+include 'db_connection.php';
 session_start();
 /* 
 Usuario Admin
 Usuario:   unso
 Password:  unso
 */
-
-// Variables de conexión a la base de datos
-$host = 'localhost';
-$dbname = 'tp_login_unso';  // Nombre de la base de datos 
-$username_db = 'root';  // Usuario de la base de datos
-$password_db = '';  // Contraseña de la base de datos (vacía en XAMPP)
 
 // Verificar si ya está logueado
 if (isset($_SESSION['user_id'])) {
@@ -55,9 +51,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // Si no es el usuario hardcodeado, conectar a la base de datos usando PDO
     try {
-        $pdo = new PDO("mysql:host=$host;dbname=$dbname", $username_db, $password_db);
-        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
         // Consulta para obtener el usuario de la base de datos
         $sql = "SELECT id, usuario, contraseña, rol FROM usuarios 
                 WHERE usuario = :username AND estado = 1";  // Solo usuarios activos
