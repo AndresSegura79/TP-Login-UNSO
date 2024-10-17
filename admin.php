@@ -11,7 +11,15 @@ if (isset($_SESSION['user_id'])) {
   header('Location: login.php');
   exit();
 } 
+include 'db_connection.php';  // Conexión a la base de datos
+$sql = "SELECT id, usuario, email, rol
+        FROM usuarios";
 
+$stmt = $pdo->prepare($sql);
+$stmt->execute();
+    
+// Obtener resultados
+$resultado = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
 <!DOCTYPE html>
@@ -76,38 +84,29 @@ if (isset($_SESSION['user_id'])) {
             </tr>
           </thead>
           <tbody>
-            <!-- Ejemplo de usuario 1 -->
+          <?php if (!empty($resultado)): ?>
+            <?php foreach ($resultado as $usuario): ?>
             <tr>
-              <th scope="row">1</th>
-              <td>John Doe</td>
-              <td>johndoe@example.com</td>
+              <th scope="row"><?php echo htmlspecialchars($usuario['id']); ?></th>
+              <td><?php echo htmlspecialchars($usuario['usuario']); ?></td>
+              <td><?php echo htmlspecialchars($usuario['email']); ?></td>
               <td>
                 <select class="form-select">
-                  <option value="Admin">Admin</option>
-                  <option value="User">User</option>
+                  <option value="admin">Admin</option>
+                  <option value="user">User</option>
                 </select>
               </td>
               <td>
-                <button class="btn btn-info btn-sm"><i class="bi bi-eye"></i> Ver</button>
+                <a href="/TP-Login-UNSO/user.php?id=<?php echo htmlspecialchars($usuario['id']); ?>" class="btn btn-info btn-sm"><i class="bi bi-eye"></i> Ver</a> 
                 <button class="btn btn-danger btn-sm"><i class="bi bi-trash"></i> Eliminar</button>
               </td>
             </tr>
-            <!-- Ejemplo de usuario 2 -->
+            <?php endforeach; ?>
+          <?php else: ?>
             <tr>
-              <th scope="row">2</th>
-              <td>Jane Smith</td>
-              <td>janesmith@example.com</td>
-              <td>
-                <select class="form-select">
-                  <option value="Admin">Admin</option>
-                  <option value="User" selected>User</option>
-                </select>
-              </td>
-              <td>
-                <button class="btn btn-info btn-sm"><i class="bi bi-eye"></i> Ver</button>
-                <button class="btn btn-danger btn-sm"><i class="bi bi-trash"></i> Eliminar</button>
-              </td>
+              <td>No hay registros de acceso.</td>
             </tr>
+          <?php endif; ?>
           </tbody>
         </table>
       </div>

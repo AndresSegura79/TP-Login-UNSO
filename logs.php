@@ -11,16 +11,16 @@ if (isset($_SESSION['user_id'])) {
   header('Location: login.php');
   exit();
 } 
-$sql = "SELECT logs.fecha_de_acceso, usuarios.nombre, usuarios.apellido, usuarios.usuario, usuarios.id 
-            FROM logs 
-            JOIN usuarios ON logs.usuario_id = usuarios.id 
-            ORDER BY logs.fecha_de_acceso DESC";
-    
-    $stmt = $pdo->prepare($sql);
-    $stmt->execute();
-    
-    // Obtener resultados
-    $logs = $stmt->fetchAll(PDO::FETCH_ASSOC);
+  $sql = "SELECT logs.fecha_de_acceso, usuarios.nombre, usuarios.apellido, usuarios.usuario, usuarios.id 
+          FROM logs 
+          JOIN usuarios ON logs.usuario_id = usuarios.id 
+          ORDER BY logs.fecha_de_acceso DESC";
+
+  $stmt = $pdo->prepare($sql);
+  $stmt->execute();
+
+  // Obtener resultados
+  $logs = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
 <!doctype html> 
