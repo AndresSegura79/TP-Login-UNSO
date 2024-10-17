@@ -2,6 +2,7 @@
 session_start();
 include 'db_connection.php';  // Conexión a la base de datos
 
+
 // Verificar si ya está logueado
 if (isset($_SESSION['user_id'])) {
     if ($_SESSION['rol'] === 'admin') {

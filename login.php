@@ -2,6 +2,7 @@
 
 include 'db_connection.php';
 session_start();
+
 /* 
 Usuario Admin 
 Usuario:   unso
@@ -195,6 +196,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <input type="password" name="password" placeholder="Contraseña" required>
             <button type="submit">Ingresar</button>
         </form>
+        <a href="resetear_contraseña.php">¿Ha olvidado su contraseña? Ingrese aquí</a>
         <a href="registro.php">¿No tienes cuenta? Regístrate aquí</a>
     </div>
 

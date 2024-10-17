@@ -1,5 +1,7 @@
 <?php
 session_start();
+include 'db_connection.php';
+
 // Verificar si ya está logueado
 if (isset($_SESSION['user_id'])) {
     if ($_SESSION['rol'] === 'admin') {
