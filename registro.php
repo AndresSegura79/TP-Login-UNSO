@@ -20,7 +20,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $email = $_POST['email'];
     $fecha_de_nacimiento = $_POST['fecha_de_nacimiento'];
     $contraseña = password_hash($_POST['contraseña'], PASSWORD_DEFAULT);  // Encriptar la contraseña
-
+   
     // Verificar si el usuario o el email ya existen en la base de datos
     $stmt = $pdo->prepare("SELECT * FROM usuarios WHERE usuario = :usuario OR email = :email");
     $stmt->bindParam(':usuario', $usuario);
@@ -32,25 +32,27 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         echo "Error: El usuario o el email ya están registrados.";
     } else {
         // Si no existe, insertar los datos
-        $sql = "INSERT INTO usuarios (nombre, apellido, usuario, email, fecha_de_nacimiento, contraseña)
-                VALUES (:nombre, :apellido, :usuario, :email, :fecha_de_nacimiento, :contraseña)";
+        $sql2 = "INSERT INTO usuarios (nombre, apellido, usuario, email, fecha_de_nacimiento, contraseña)
+                VALUES (?,?,?,?,?,?)";
         
         // Preparar la consulta
-        $stmt = $pdo->prepare($sql);
-        $stmt->bindParam(':nombre', $nombre);
-        $stmt->bindParam(':apellido', $apellido);
-        $stmt->bindParam(':usuario', $usuario);
-        $stmt->bindParam(':email', $email);
-        $stmt->bindParam(':fecha_de_nacimiento', $fecha_de_nacimiento);
-        $stmt->bindParam(':contraseña', $contraseña);
-
-        // Ejecutar la consulta
-        if ($stmt->execute()) {
+        $stmt2 = $pdo->prepare($sql2);
+        var_dump($nombre, $apellido, $usuario, $email, $fecha_de_nacimiento, $contraseña);
+        $stmt2->bindParam(1, $nombre, PDO::PARAM_STR);
+        $stmt2->bindParam(2, $apellido, PDO::PARAM_STR);
+        $stmt2->bindParam(3, $usuario, PDO::PARAM_STR);
+        $stmt2->bindParam(4, $email, PDO::PARAM_STR);
+        $stmt2->bindParam(5, $fecha_de_nacimiento, PDO::PARAM_STR);
+        $stmt2->bindParam(6, $contraseña, PDO::PARAM_STR);
+      
+        try {
+            $stmt2->execute();
             echo "Registro exitoso. Ya puedes iniciar sesión."; 
             header('Location: login.php');
-        } else {
-            echo "Error al registrar el usuario.";
+        } catch (PDOException $e) {
+            echo "Error al registrar el usuario." . $e->getMessage();
         }
+      
     }
 }
 ?>
