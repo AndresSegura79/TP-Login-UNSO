@@ -1,5 +1,6 @@
 <?php
 session_start();
+include 'db_connection.php';  // Conexión a la base de datos
 // Verificar si ya está logueado
 if (isset($_SESSION['user_id'])) {
   if ($_SESSION['rol'] !== 'admin') {
@@ -10,7 +11,16 @@ if (isset($_SESSION['user_id'])) {
   header('Location: login.php');
   exit();
 } 
-
+$sql = "SELECT logs.fecha_de_acceso, usuarios.nombre, usuarios.apellido, usuarios.usuario, usuarios.id 
+            FROM logs 
+            JOIN usuarios ON logs.usuario_id = usuarios.id 
+            ORDER BY logs.fecha_de_acceso DESC";
+    
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute();
+    
+    // Obtener resultados
+    $logs = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
 <!doctype html> 
@@ -29,7 +39,7 @@ if (isset($_SESSION['user_id'])) {
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
     <link rel="stylesheet" href="css/style.css">
   </head>
-  <body class="py-4">
+  <body>
    <!-- Sidebar -->
     <nav id="sidebar" class="bg-dark">
       <div class="d-flex flex-column p-3">
@@ -52,45 +62,37 @@ if (isset($_SESSION['user_id'])) {
       </div>
     </nav>  
     <main>
-      <div class="container">
-
-        <h1 class="text-center">Logs de Acceso</h1>
-        <p class="lead text-center">Estos son los logs de acceso.</p>
-        <!-- Logs grid -->
-        <div class="row mb-3">
-          <!-- Header Row -->
-          <div class="col-md-6">
-            <strong>Usuario</strong>
-          </div>
-          <div class="col-md-6">
-            <strong>Log de acceso</strong>
-          </div>
-        </div>
-
-        <!-- Log Entries -->
-        <div class="row mb-3">
-          <div class="col-md-6">John Doe</div>
-          <div class="col-md-6">2024-10-01 10:00 AM</div>
-        </div>
-
-        <div class="row mb-3">
-          <div class="col-md-6">Jane Smith</div>
-          <div class="col-md-6">2024-10-01 11:30 AM</div>
-        </div>
-
-        <div class="row mb-3">
-          <div class="col-md-6">Alice Johnson</div>
-          <div class="col-md-6">2024-10-02 09:15 AM</div>
-        </div>
-
-        <div class="row mb-3">
-          <div class="col-md-6">Bob Brown</div>
-          <div class="col-md-6">2024-10-02 02:45 PM</div>
-        </div>
-
-        <!-- Add more log entries as needed -->
-
-      </div> <!-- End Container -->
+      <h1 class="text-center">Logs de Acceso</h1>
+      <p class="lead text-center">Estos son los logs de acceso.</p>
+      <table class="table table-striped table-hover">
+        <thead>
+          <tr>
+            <th scope="col">ID</th>
+            <th scope="col">Usuario</th>
+            <th scope="col">Nombre</th>
+            <th scope="col">Apellido</th>
+            <th scope="col">Fecha de acceso</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Log Entries -->
+          <?php if (!empty($logs)): ?>
+            <?php foreach ($logs as $log): ?>
+              <tr>
+                <td><?php echo htmlspecialchars($log['id']); ?></td> 
+                <td><?php echo htmlspecialchars($log['usuario']); ?></td> 
+                <td><?php echo htmlspecialchars($log['nombre']); ?></td>
+                <td><?php echo htmlspecialchars($log['apellido']); ?></td>
+                <td><?php echo htmlspecialchars($log['fecha_de_acceso']); ?></td>
+              </tr>
+            <?php endforeach; ?>
+          <?php else: ?>
+            <tr>
+              <td>No hay registros de acceso.</td>
+            </tr>
+          <?php endif; ?>
+        </tbody>
+      </table>
     </main>
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
