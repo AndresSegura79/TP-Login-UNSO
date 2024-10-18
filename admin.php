@@ -2,7 +2,6 @@
 session_start();
 include 'db_connection.php';
 
-
 // Verificar si ya está logueado
 if (isset($_SESSION['user_id'])) {
   if ($_SESSION['rol'] !== 'admin') {
@@ -13,27 +12,39 @@ if (isset($_SESSION['user_id'])) {
   header('Location: login.php');
   exit();
 } 
+
+// Procesar la solicitud de eliminación de usuario
 if (isset($_POST['eliminar'])) {
-  $id = intval($_POST['id']); // Asegúrate de sanitizar el ID  
-  try {
-    $pdo->beginTransaction();
-    $stmtLogs = $pdo->prepare("DELETE FROM logs WHERE id = ?");
-    $stmtLogs->bindParam(1, $id);
-    $stmtLogs->execute();
-    // Ejecutar la consulta para eliminar el usuario
-    $stmtUser = $pdo->prepare("DELETE FROM usuarios WHERE id = ?");
-    $stmtUser->bindParam(1, $id);
-    $stmtUser->execute();
-    $pdo->commit();
-  } catch (PDOException $e) {
-    $pdo->rollBack();
-    echo "Error al eliminar el usuario o sus registros: " . $e->getMessage();
-  }                                                       
- 
+    $id = intval($_POST['id']); // Sanitizar el ID
+    
+    try {
+        // Iniciar la transacción
+        $pdo->beginTransaction();
+        
+        // Eliminar los registros de logs relacionados con el usuario
+        $stmtLogs = $pdo->prepare("DELETE FROM logs WHERE usuario_id = ?");
+        $stmtLogs->bindParam(1, $id, PDO::PARAM_INT);
+        $stmtLogs->execute();
+        
+        // Eliminar el usuario de la tabla usuarios
+        $stmtUser = $pdo->prepare("DELETE FROM usuarios WHERE id = ?");
+        $stmtUser->bindParam(1, $id, PDO::PARAM_INT);
+        $stmtUser->execute();
+        
+        // Confirmar la transacción
+        $pdo->commit();
+        
+        echo "Usuario y sus registros eliminados con éxito.";
+    } catch (PDOException $e) {
+        // Revertir la transacción en caso de error
+        $pdo->rollBack();
+        echo "Error al eliminar el usuario o sus registros: " . $e->getMessage();
+    }
 }
+
+// Manejar la búsqueda de usuarios por email
 $email = isset($_GET['email']) ? $_GET['email'] : '';
-$sql = "SELECT id, usuario, email, rol
-        FROM usuarios";
+$sql = "SELECT id, usuario, email, rol FROM usuarios";
 if (!empty($email)) {
   $sql .= " WHERE email LIKE :email";
 }
@@ -74,7 +85,7 @@ $resultado = $stmt->fetchAll(PDO::FETCH_ASSOC);
         </li>
         <!-- Log out -->
         <li class="nav-item">
-          <a href="logout.php" class="nav-link"> <!-- Modificación aquí -->
+          <a href="logout.php" class="nav-link">
             <i class="bi bi-box-arrow-in-right"></i> Cerrar Sesión
           </a>
         </li>
@@ -116,17 +127,17 @@ $resultado = $stmt->fetchAll(PDO::FETCH_ASSOC);
               <td><?php echo htmlspecialchars($usuario['usuario']); ?></td>
               <td><?php echo htmlspecialchars($usuario['email']); ?></td>
               <td>
-              <select class="form-select" onchange="cambiarRol(<?php echo htmlspecialchars($usuario['id']); ?>, this.value)">
-                <option value="admin" <?php echo htmlspecialchars($usuario['rol']) == 'admin' ? 'selected' : ''; ?>>Admin</option>
-                <option value="user"  <?php echo htmlspecialchars($usuario['rol']) == 'user' ? 'selected' : ''; ?>>User</option>
-            </select>
+                <select class="form-select" onchange="cambiarRol(<?php echo htmlspecialchars($usuario['id']); ?>, this.value)">
+                  <option value="admin" <?php echo htmlspecialchars($usuario['rol']) == 'admin' ? 'selected' : ''; ?>>Admin</option>
+                  <option value="user"  <?php echo htmlspecialchars($usuario['rol']) == 'user' ? 'selected' : ''; ?>>User</option>
+                </select>
               </td>
               <td>
                 <a href="/TP-Login-UNSO/user.php?id=<?php echo htmlspecialchars($usuario['id']); ?>" class="btn btn-info btn-sm"><i class="bi bi-eye"></i> Ver</a> 
-                <form method='POST' action='admin.php' onsubmit='return confirm(\"¿Seguro que deseas eliminar este usuario?\");'>
-                <input type='hidden' name='id' value="<?php echo htmlspecialchars($usuario['id']); ?>"/>
-                <button class="btn btn-danger btn-sm" type='submit' name='eliminar' value='eliminar'><i class="bi bi-trash"></i> Eliminar</button>
-            </form>
+                <form method='POST' action='admin.php' onsubmit='return confirm("¿Seguro que deseas eliminar este usuario?");'>
+                  <input type='hidden' name='id' value="<?php echo htmlspecialchars($usuario['id']); ?>"/>
+                  <button class="btn btn-danger btn-sm" type='submit' name='eliminar' value='eliminar'><i class="bi bi-trash"></i> Eliminar</button>
+                </form>
               </td>
             </tr>
             <?php endforeach; ?>
@@ -143,4 +154,3 @@ $resultado = $stmt->fetchAll(PDO::FETCH_ASSOC);
   <script src="js/script.js"></script>
 </body>
 </html>
-
