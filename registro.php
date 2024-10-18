@@ -2,7 +2,6 @@
 session_start();
 include 'db_connection.php';  // Conexión a la base de datos
 
-
 // Verificar si ya está logueado
 if (isset($_SESSION['user_id'])) {
     if ($_SESSION['rol'] === 'admin') {
@@ -13,6 +12,33 @@ if (isset($_SESSION['user_id'])) {
     exit();
 }
 
+// Función para validar la contraseña
+function validar_contrasena($contrasena) {
+    $errores = [];
+
+    // Verificar la longitud mínima
+    if (strlen($contrasena) < 8) {
+        $errores[] = "La contraseña debe tener al menos 8 caracteres.";
+    }
+
+    // Verificar al menos 1 número
+    if (!preg_match('/\\d/', $contrasena)) {
+        $errores[] = "La contraseña debe contener al menos 1 número.";
+    }
+
+    // Verificar al menos 1 letra mayúscula y 1 letra minúscula
+    if (!preg_match('/[a-z]/', $contrasena) || !preg_match('/[A-Z]/', $contrasena)) {
+        $errores[] = "La contraseña debe contener al menos 1 letra mayúscula y 1 letra minúscula.";
+    }
+
+    // Verificar al menos 1 carácter especial
+    if (!preg_match('/[\\W_]/', $contrasena)) {
+        $errores[] = "La contraseña debe contener al menos 1 carácter especial (ej: @, #, $, %, &).";
+    }
+
+    return $errores;
+}
+
 // Procesar el formulario si se envía
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $nombre = $_POST['nombre'];
@@ -20,40 +46,59 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $usuario = $_POST['usuario'];
     $email = $_POST['email'];
     $fecha_de_nacimiento = $_POST['fecha_de_nacimiento'];
-    $contraseña = password_hash($_POST['contraseña'], PASSWORD_DEFAULT);  // Encriptar la contraseña
-   
-    // Verificar si el usuario o el email ya existen en la base de datos
-    $stmt = $pdo->prepare("SELECT * FROM usuarios WHERE usuario = :usuario OR email = :email");
-    $stmt->bindParam(':usuario', $usuario);
-    $stmt->bindParam(':email', $email);
-    $stmt->execute();
+    $contraseña = $_POST['contraseña'];
+    $confirmar_contraseña = $_POST['confirmar_contraseña'];
 
-    if ($stmt->rowCount() > 0) {
-        // Si ya existe, mostrar un mensaje de error
-        echo "Error: El usuario o el email ya están registrados.";
+    // Verificar si las contraseñas coinciden
+    if ($contraseña !== $confirmar_contraseña) {
+        echo "<div class='alert alert-danger'>Las contraseñas no coinciden. Inténtalo de nuevo.</div>";
     } else {
-        // Si no existe, insertar los datos
-        $sql2 = "INSERT INTO usuarios (nombre, apellido, usuario, email, fecha_de_nacimiento, contraseña)
-                VALUES (?,?,?,?,?,?)";
-        
-        // Preparar la consulta
-        $stmt2 = $pdo->prepare($sql2);
-        var_dump($nombre, $apellido, $usuario, $email, $fecha_de_nacimiento, $contraseña);
-        $stmt2->bindParam(1, $nombre, PDO::PARAM_STR);
-        $stmt2->bindParam(2, $apellido, PDO::PARAM_STR);
-        $stmt2->bindParam(3, $usuario, PDO::PARAM_STR);
-        $stmt2->bindParam(4, $email, PDO::PARAM_STR);
-        $stmt2->bindParam(5, $fecha_de_nacimiento, PDO::PARAM_STR);
-        $stmt2->bindParam(6, $contraseña, PDO::PARAM_STR);
-      
-        try {
-            $stmt2->execute();
-            echo "Registro exitoso. Ya puedes iniciar sesión."; 
-            header('Location: login.php');
-        } catch (PDOException $e) {
-            echo "Error al registrar el usuario." . $e->getMessage();
+        // Validar la contraseña
+        $errores = validar_contrasena($contraseña);
+        if (empty($errores)) {
+            // Encriptar la contraseña
+            $contraseña_hash = password_hash($contraseña, PASSWORD_DEFAULT);
+
+            // Verificar si el usuario o el email ya existen en la base de datos
+            $stmt = $pdo->prepare("SELECT * FROM usuarios WHERE usuario = :usuario OR email = :email");
+            $stmt->bindParam(':usuario', $usuario);
+            $stmt->bindParam(':email', $email);
+            $stmt->execute();
+
+            if ($stmt->rowCount() > 0) {
+                // Si ya existe, mostrar un mensaje de error
+                echo "<div class='alert alert-danger'>Error: El usuario o el email ya están registrados.</div>";
+            } else {
+                // Si no existe, insertar los datos
+                $sql2 = "INSERT INTO usuarios (nombre, apellido, usuario, email, fecha_de_nacimiento, contraseña)
+                        VALUES (?,?,?,?,?,?)";
+                
+                // Preparar la consulta
+                $stmt2 = $pdo->prepare($sql2);
+                $stmt2->bindParam(1, $nombre, PDO::PARAM_STR);
+                $stmt2->bindParam(2, $apellido, PDO::PARAM_STR);
+                $stmt2->bindParam(3, $usuario, PDO::PARAM_STR);
+                $stmt2->bindParam(4, $email, PDO::PARAM_STR);
+                $stmt2->bindParam(5, $fecha_de_nacimiento, PDO::PARAM_STR);
+                $stmt2->bindParam(6, $contraseña_hash, PDO::PARAM_STR);
+              
+                try {
+                    $stmt2->execute();
+                    echo "<div class='alert alert-success'>Registro exitoso. Ya puedes iniciar sesión.</div>";
+                    header('Location: login.php');
+                    exit();
+                } catch (PDOException $e) {
+                    echo "<div class='alert alert-danger'>Error al registrar el usuario. " . $e->getMessage() . "</div>";
+                }
+            }
+        } else {
+            // Mostrar los errores de validación de la contraseña
+            echo "<div class='alert alert-danger'><ul>";
+            foreach ($errores as $error) {
+                echo "<li>$error</li>";
+            }
+            echo "</ul></div>";
         }
-      
     }
 }
 ?>
@@ -102,6 +147,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                             <input type="password" class="form-control" id="password" name="contraseña" placeholder="Ingrese su contraseña" required>
                         </div>
                         <div class="col-12">
+                            <label for="confirmPassword" class="form-label">Confirmar Contraseña</label>
+                            <input type="password" class="form-control" id="confirmPassword" name="confirmar_contraseña" placeholder="Confirme su contraseña" required>
+                        </div>
+                        <div class="col-12">
                             <label for="birthdate" class="form-label">Fecha de Nacimiento</label>
                             <input type="date" class="form-control" id="birthdate" name="fecha_de_nacimiento" required>
                         </div>
@@ -113,6 +162,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         </div>
     </main>
 </div>
+
+<!-- Recuadro de política de contraseñas -->
+<div class="password-policy position-fixed bottom-0 end-0 p-3 bg-light border" style="width: 300px;">
+    <p><strong>Requisitos para tu contraseña:</strong></p>
+    <ul>
+        <li>Mínimo 8 caracteres</li>
+        <li>Al menos 1 número</li>
+        <li>Al menos 1 letra mayúscula y 1 letra minúscula</li>
+        <li>Al menos 1 carácter especial (ej: @, #, $, %, &)</li>
+    </ul>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
+
